@@ -3,16 +3,26 @@ const cors = require('cors');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const fs = require('fs');
-
+const path = require('path');
 
 require('dotenv').config();
-
 
 const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
 
+// อ่านไฟล์ ca.pem แบบ absolute path
+const sslCaPath = path.resolve(__dirname, 'certs', 'ca.pem');
+
+let sslCa;
+try {
+  sslCa = fs.readFileSync(sslCaPath);
+  console.log('✅ อ่านไฟล์ SSL CA สำเร็จ:', sslCaPath);
+} catch (err) {
+  console.error('❌ อ่านไฟล์ SSL CA ไม่สำเร็จ:', sslCaPath, err);
+  process.exit(1); // หยุดโปรแกรมถ้าไม่เจอไฟล์
+}
 
 const connection = mysql.createConnection({
   host: "gateway01.ap-southeast-1.prod.aws.tidbcloud.com",
@@ -20,8 +30,8 @@ const connection = mysql.createConnection({
   user: "4EyRHb9LHnGM8dx.root",
   password: "hVMm5a9kyovoyJbP",
   database: "test",
-   ssl: {
-    ca: fs.readFileSync("./certs/ca.pem"),
+  ssl: {
+    ca: sslCa,
   },
 });
 
@@ -32,7 +42,6 @@ connection.connect((err) => {
     console.log('✅ เชื่อมต่อฐานข้อมูล MySQL สำเร็จ');
   }
 });
-
 
 app.post('/api/tasks', (req, res) => {
   const { type, name, startTime, endTime, status, createdAt, updatedAt } = req.body;
@@ -49,8 +58,6 @@ app.post('/api/tasks', (req, res) => {
     }
   });
 });
-
-
 
 app.get('/api/tasks', (req, res) => {
   const { startDate, endDate } = req.query;
@@ -100,7 +107,6 @@ app.put('/api/tasks/:id', (req, res) => {
   );
 });
 
-
 app.delete('/api/tasks/:id', (req, res) => {
   const taskId = req.params.id;
 
@@ -119,7 +125,6 @@ app.delete('/api/tasks/:id', (req, res) => {
     res.json({ message: '✅ ลบข้อมูลเรียบร้อยแล้ว' });
   });
 });
-
 
 app.get('/api/report/daily', (req, res) => {
   const { startDate, endDate } = req.query;
@@ -143,7 +148,6 @@ app.get('/api/report/daily', (req, res) => {
     res.json(results);
   });
 });
-
 
 app.get('/api/report/monthly-status', (req, res) => {
   const { month, year } = req.query;
@@ -169,11 +173,8 @@ app.get('/api/report/monthly-status', (req, res) => {
   });
 });
 
-
-
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`🚀 Backend รันที่ http://localhost:${PORT}`);
 });
-
