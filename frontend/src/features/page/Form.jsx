@@ -37,7 +37,7 @@ function Form() {
 
   const fetchTasks = async (startDate, endDate) => {
     try {
-      let url = 'http://localhost:5000/api/tasks';
+      let url = 'https://exam-4slo.onrender.com/api/tasks';
       if (startDate && endDate) {
         url += `?startDate=${startDate}&endDate=${endDate}`;
       }
@@ -81,13 +81,13 @@ function Form() {
     try {
       let response;
       if (isEditing && form.id) {
-        response = await fetch(`http://localhost:5000/api/tasks/${form.id}`, {
+        response = await fetch(`https://exam-4slo.onrender.com/api/tasks/${form.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(dataToSend),
         });
       } else {
-        response = await fetch('http://localhost:5000/api/tasks', {
+        response = await fetch('https://exam-4slo.onrender.com/api/tasks', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(dataToSend),
@@ -127,7 +127,7 @@ function Form() {
     if (!window.confirm('ต้องการลบข้อมูลนี้หรือไม่?')) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/tasks/${id}`, {
+      const response = await fetch(`https://exam-4slo.onrender.com/api/tasks/${id}`, {
         method: 'DELETE',
       });
       if (response.ok) {
@@ -190,7 +190,7 @@ function Form() {
       return;
     }
     try {
-      const res = await fetch(`http://localhost:5000/api/report/monthly-status?month=${reportMonth}&year=${reportYear}`);
+      const res = await fetch(`https://exam-4slo.onrender.com/api/report/monthly-status?month=${reportMonth}&year=${reportYear}`);
       const data = await res.json();
       setMonthlyStatusReport(data);
     } catch (error) {
