@@ -2,23 +2,27 @@ const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
+const fs = require('fs');
 
 
 require('dotenv').config();
 
 
 const app = express();
-const PORT = 5000;
 
 app.use(cors());
 app.use(bodyParser.json());
 
 
 const connection = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  host: "gateway01.ap-southeast-1.prod.aws.tidbcloud.com",
+  port: 4000,
+  user: "4EyRHb9LHnGM8dx.root",
+  password: "hVMm5a9kyovoyJbP",
+  database: "test",
+   ssl: {
+    ca: fs.readFileSync("./certs/ca.pem"),
+  },
 });
 
 connection.connect((err) => {
@@ -167,6 +171,9 @@ app.get('/api/report/monthly-status', (req, res) => {
 
 
 
+const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
   console.log(`🚀 Backend รันที่ http://localhost:${PORT}`);
 });
+
